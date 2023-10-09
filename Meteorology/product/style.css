@@ -1,0 +1,44 @@
+body {
+    background: url('https://wallpapers.com/images/featured/lo-fi-mvqzjym6ie17firw.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+}
+
+h1 {
+    background: linear-gradient(to right, #5ee7df, #ff6b6b);
+    color: white;
+    padding: 20px;
+    margin: 0;
+    font-family: cursive; 
+    font-weight: bold;
+    font-size: 48px; 
+}
+
+.container {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px auto;
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.data {
+    display: none;
+    text-align: left;
+}
+
+.data h2 {
+    color: #333;
+}

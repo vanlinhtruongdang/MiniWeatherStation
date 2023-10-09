@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Meteorological Data</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+
+</head>
+<body>
+    <h1>My Meteorological Data</h1>
+    <div class="container">
+        <label for="city">Choose a city in Vietnam:</label>
+        <select id="city">
+            <option value="hanoi">Ha Noi</option>
+            <option value="hochiminh">Ho Chi Minh City</option>
+            <option value="haiphong">Hai Phong</option>
+            <option value="danang">Da Nang</option>
+            <option value="cantho">Can Tho</option>
+            <!-- Thêm các thành phố khác tại Việt Nam nếu cần -->
+        </select>
+        <button onclick="showWeather()">Check the weather in your area</button>
+        <div class="data" id="weatherData">
+            <h2>Weather Information</h2>
+            <p><strong>Temperature:</strong> <span id="temperature"></span> <img src="https://drive.google.com/file/d/1ieOrdk8XKdxYXKeXbdli7gKYnOjX0giB/view?usp=drive_link" alt="Temperature Icon"></p>
+            <p><strong>Humidity:</strong> <span id="humidity"></span> <img src="https://drive.google.com/file/d/1nvXBv33jlcmTVCZoaX9GAQfRyVaHONnb/view?usp=drive_link" alt="Temperature Icon"></p>
+            <p><strong>Wind:</strong> <span id="wind"></span> <img src="https://drive.google.com/file/d/16HAuLnbDSHNkxiKxXIUejNWAZHZPAyVd/view?usp=drive_link" alt="Wind Icon"></p>
+            <p><strong>Rainfall:</strong> <span id="rainfall"></span> </p>
+        </div>
+    </div>
+
+</body>
+</html>
