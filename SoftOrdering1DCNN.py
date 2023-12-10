@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch.nn.utils.parametrizations import weight_norm
+from torch.nn.utils import weight_norm
 from einops import rearrange
 
 class PreNorm(nn.Module):
@@ -17,9 +17,9 @@ class MLP(nn.Module):
         self.feedfoward = nn.Sequential(
             nn.Linear(dim, hidden_dim),
             nn.GELU(),
-            nn.Dropout1d(dropout),
+            nn.Dropout(dropout),
             nn.Linear(hidden_dim, dim),
-            nn.Dropout1d(dropout)
+            nn.Dropout(dropout)
         )
     def forward(self, x):
         return self.feedfoward(x)
@@ -40,7 +40,7 @@ class Attention(nn.Module):
 
         self.to_out = nn.Sequential(
             nn.Linear(inner_dim, dim),
-            nn.Dropout1d(dropout)
+            nn.Dropout(dropout)
         ) if project_out else nn.Identity()
 
     def forward(self, x):
@@ -69,7 +69,7 @@ class SoftOrdering1DCNN(nn.Module):
         self.cha_input = cha_input
 
         # Dropout
-        self.dropout = nn.Dropout1d(dropout_rate)
+        self.dropout = nn.Dropout(dropout_rate)
 
         # Input
         self.BnInput = nn.BatchNorm1d(input_dim)
@@ -113,7 +113,7 @@ class SoftOrdering1DCNN(nn.Module):
             weight_norm(conv, dim=None),
             nn.BatchNorm1d(cha_output),
             nn.CELU(),
-            nn.Dropout1d(dropout_rate),
+            nn.Dropout(dropout_rate),
             )
 
         return Layer

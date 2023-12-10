@@ -10,10 +10,12 @@ from SoftOrdering1DCNN import SoftOrdering1DCNN
 import torch
 import numpy as np
 
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print(f'Using device: {device}')
 
 API_Key = "c8247668d0e5640ca269aa61eabfc4e3"
-Dataset = pd.DataFrame(columns=['datetime', 'lon', 'lat', 'temperature', 'wind_speed', 'humidity', 'cloud', 'pressure', 'visibility', 'rain', 'predict'])
+Dataset = pd.DataFrame(columns=['datetime', 'temperature', 'wind_speed', 'humidity', 'cloud', 'pressure', 'visibility', 'rain', 'predict'])
 
 Latitude = 10.869778736885038
 Longtitude = 106.80280655508835
@@ -36,8 +38,8 @@ def PipelineInit():
     from sklearn.preprocessing import StandardScaler, Normalizer
     from sklearn.pipeline import Pipeline
 
-    TrainData = np.load('./Data.npy')
-    TrainLabel = np.load('./Target.npy')
+    TrainData = np.load('./PreprocessedData/Data.npy')
+    TrainLabel = np.load('./PreprocessedData/Target.npy')
     pipeline = Pipeline([
         ('Standard scaling', StandardScaler()),
         ('Normalize', Normalizer())]).fit(X=TrainData, y=TrainLabel)
@@ -54,20 +56,17 @@ def ConvertUTCTimestamp(UTCTimestamp, getdatetime = False):
 
     return VN_Datetime
 
-def SaveDataset(Timestamp, isInterrupt = False):
+def SaveDataset(Timestamp):
     global Dataset
 
     Datetime = ConvertUTCTimestamp(Timestamp)
     FileName = f'{Datetime}.csv'
-    SaveDirectory = f'/usr/share/grafana/public/WeatherData' if not isInterrupt else f'/usr/share/grafana/public/WeatherData/Interrupt'
+    SaveDirectory = f'/usr/share/grafana/public/WeatherData'
 
     FilePath = os.path.join(SaveDirectory, FileName)
     Dataset.drop_duplicates(inplace=True)
     Dataset.to_csv(FilePath, index=False)
     prGreen(f"Dataset was saved successfully: {FilePath}")
-
-    if isInterrupt:
-        exit()
 
 
 def GetWeatherData():
@@ -79,7 +78,7 @@ def GetWeatherData():
 
     Model = SoftOrdering1DCNN(5, 2)
     Model.load_state_dict(torch.load("./ModelCheckpoint/SoftOrdering1DCNN.pth"))
-    Model.eval()
+    Model.eval().to(device)
 
     if response.status_code == 200:
         prGreen("Get weather data from OpenWeather successfully!")
@@ -96,8 +95,6 @@ def GetWeatherData():
 
         WeatherData = {
             'datetime': ConvertUTCTimestamp(Timestamp, getdatetime=True),
-            'lon': lon,
-            'lat': lat,
             'temperature': float(ResponseData['main']['temp']), # Celius
             'wind_speed': float(ResponseData['wind']['speed']), # metter/s
             'humidity': float(ResponseData['main']['humidity']), # Percentage
@@ -108,7 +105,7 @@ def GetWeatherData():
             'predict': None
         }
 
-        Dataset = Dataset._append(WeatherData, ignore_index=True)
+        Dataset = Dataset.append(WeatherData, ignore_index=True)
 
         Features = ['temperature', 'wind_speed', 'humidity', 'cloud', 'pressure']
         DataNumpy = Dataset[Features].iloc[-1].values
@@ -117,7 +114,7 @@ def GetWeatherData():
         Data = torch.from_numpy(DataNumpy).float().to(device)
         Predict = Model(Data)
 
-        Result = torch.max(Predict).detach().numpy() * 100
+        Result = torch.max(Predict).detach().cpu().numpy() * 100
         Dataset.at[Dataset.index[-1], 'predict'] = Result
 
         print(Dataset.iloc[-1])
@@ -132,10 +129,6 @@ if __name__ == '__main__':
     
     schedule.every(interval=1).hours.do(GetWeatherData)
 
-    try:
-        while True:
-            schedule.run_pending()
-            time.sleep(1)
-
-    except KeyboardInterrupt:
-        SaveDataset(Timestamp, isInterrupt=True)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
